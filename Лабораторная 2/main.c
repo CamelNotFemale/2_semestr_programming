@@ -31,11 +31,12 @@ typedef struct
         Node *last;
     } Head; // Головаодносвязного списка
 
+// Получение валидных значений
 char *get_string(); // Получение строки
 int get_int(); // Получение целого числа
 float get_float(); // ПОлучение числа с плавающей запятой
 char *get_subject(); // Получение учебного предмета
-
+// Работа со списком
 void *add_item(tutor *list); // Заполнение информационных полей у репетитора
 Head *make_head(); // Инициализация головы списка
 Node *create_node(); // Создать элемент списка
@@ -44,12 +45,14 @@ void *add_last(Head *my_head, Node *new_node); // Добавить элемент в конец списк
 void insert(Head *my_head, Node *new_node); // Вставка в произвольное место
 void swap(Head *HEAD); // Перестановка двух элементов
 void remove_node(Head *my_head); // Удаление элемента
+Node *copy_node(Node *NODE); // Копирование элемента
 void print_tutors(Head *my_head); // Печать списка в виде таблицы
 Head *selected(Head *my_head); // Процесс фильтрации
 Node *clean_node(Node *); // Очистка памяти для одной записи
 Head *clean_list(Head *HEAD); // Очистить память под список
+// Интерфейс
 int Menu(); // Вывод меню и выбор его пункта
-void Help(); // СПравка
+void Help(); // Справка
 
 int main()
 {
@@ -471,6 +474,27 @@ void remove_node(Head *my_head)
     } while (c==49 && my_head->count>0);
 }
 
+Node *copy_node(Node *NODE)
+{
+    int i;
+    Node *p=NULL;
+
+    p = (Node*)malloc(sizeof(Node));
+    (p->info).name = (char*)malloc(MAXLEN*sizeof(char));
+    (p->info).subject = (char*)malloc(MAXLEN*sizeof(char));
+
+    if((p->info).subject!=NULL && (p->info).name!=NULL)
+    {
+        strcpy((p->info).name, (NODE->info).name);
+        strcpy((p->info).subject, (NODE->info).name);
+        (p->info).price = (NODE->info).price;
+        (p->info).qual = (NODE->info).qual;
+        (p->info).rating = (NODE->info).rating;
+    }
+
+    return p;
+}
+
 void print_tutors(Head *my_head)
 {
     int i;
@@ -508,7 +532,7 @@ Head *selected(Head *my_head)
     {
         if (((p->info).price <= maxPrice) && ((p->info).rating >= minRating) && (strcmp((p->info).subject, subject)==0))
         {
-            add_last(NEW_HEAD, p);
+            add_last(NEW_HEAD, copy_node(p));
         }
         p = p->next;
     }

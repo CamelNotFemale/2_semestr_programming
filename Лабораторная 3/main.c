@@ -32,24 +32,28 @@ typedef struct
         Node *last;
     } Head; // Голова двусвязного списка
 
-char *get_string();
-int get_int();
-float get_float();
-char *get_subject();
-void *add_item(tutor *list);
-Head *make_head();
-Node *create_node();
-void *add_first(Head *my_head, Node *new_node);
-void *add_last(Head *my_head, Node *new_node);
-void insert(Head *my_head, Node *new_node);
-void print_tutors(Head *my_head);
-Head *selected(Head *my_head);
-Node *clean_node(Node *node);
-Head *clean_list(Head *HEAD);
-void swap(Head *HEAD);
-void remove_node(Head *my_head);
-int Menu(int q);
-void Help();
+// Получение валидных значений
+char *get_string(); // Получение строки
+int get_int(); // Получение целого числа
+float get_float(); // ПОлучение числа с плавающей запятой
+char *get_subject(); // Получение учебного предмета
+// Работа со списком
+void *add_item(tutor *list); // Заполнение информационных полей у репетитора
+Head *make_head(); // Инициализация головы списка
+Node *create_node(); // Создать элемент списка
+void *add_first(Head *my_head, Node *new_node); // Добавить элемент в начало списка
+void *add_last(Head *my_head, Node *new_node); // Добавить элемент в конец списка
+void insert(Head *my_head, Node *new_node); // Вставка в произвольное место
+void swap(Head *HEAD); // Перестановка двух элементов
+void remove_node(Head *my_head); // Удаление элемента
+Node *copy_node(Node *NODE); // Копирование элемента
+void print_tutors(Head *my_head); // Печать списка в виде таблицы
+Head *selected(Head *my_head); // Процесс фильтрации
+Node *clean_node(Node *); // Очистка памяти для одной записи
+Head *clean_list(Head *HEAD); // Очистить память под список
+// Интерфейс
+int Menu(); // Вывод меню и выбор его пункта
+void Help(); // Справка
 
 int main()
 {
@@ -491,6 +495,27 @@ void swap(Head *HEAD)
     }
 }
 
+Node *copy_node(Node *NODE)
+{
+    int i;
+    Node *p=NULL;
+
+    p = (Node*)malloc(sizeof(Node));
+    (p->info).name = (char*)malloc(MAXLEN*sizeof(char));
+    (p->info).subject = (char*)malloc(MAXLEN*sizeof(char));
+
+    if((p->info).subject!=NULL && (p->info).name!=NULL)
+    {
+        strcpy((p->info).name, (NODE->info).name);
+        strcpy((p->info).subject, (NODE->info).name);
+        (p->info).price = (NODE->info).price;
+        (p->info).qual = (NODE->info).qual;
+        (p->info).rating = (NODE->info).rating;
+    }
+
+    return p;
+}
+
 void print_tutors(Head *my_head)
 {
     int i;
@@ -528,7 +553,7 @@ Head *selected(Head *my_head)
     {
         if (((p->info).price <= maxPrice) && ((p->info).rating >= minRating) && (strcmp((p->info).subject, subject)==0))
         {
-            add_last(NEW_HEAD, p);
+            add_last(NEW_HEAD, copy_node(p));
         }
         p = p->next;
     }
