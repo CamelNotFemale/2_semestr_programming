@@ -41,7 +41,7 @@ Head *make_head(); // Инициализация головы списка
 Node *create_node(); // Создать элемент списка
 void *add_first(Head *my_head, Node *new_node); // Добавить элемент в начало списка
 void *add_last(Head *my_head, Node *new_node); // Добавить элемент в конец списка
-void insert(Head *my_head, Node *new_node, int pos); // Вставка в произвольное место
+void insert(Head *my_head, Node *new_node); // Вставка в произвольное место
 void swap(Head *HEAD); // Перестановка двух элементов
 void remove_node(Head *my_head); // Удаление элемента
 void print_tutors(Head *my_head); // Печать списка в виде таблицы
@@ -56,7 +56,7 @@ int main()
     Head *HEAD = NULL, *NEW_HEAD = NULL;
     Node *p = NULL;
     HEAD = make_head();
-    int Q, Q3, output = 0, pos;
+    int Q, Q3, output = 0;
     char c = 0;
     do {
         Q = Menu(0);
@@ -87,12 +87,7 @@ int main()
                             add_last(HEAD, p);
                             break;
                         case 51:
-                            do
-                            {
-                                printf("What position? [From 1 to %d]\n", HEAD->count+1);
-                                pos = get_int();
-                            } while (pos < 1 || pos > HEAD->count+1);
-                            insert(HEAD, p, pos);
+                            insert(HEAD, p);
                             break;
                         case 13:
                             printf("Successful input.\n");
@@ -325,10 +320,17 @@ void *add_last(Head *my_head, Node *new_node) // Добавить новую запись последней
         }
     }
 
-void insert(Head *my_head, Node *new_node, int pos) // Вставка в любое место
+void insert(Head *my_head, Node *new_node) // Вставка в любое место
     {
-        int i;
+        int i, pos;
         Node *p;
+
+        do
+        {
+            printf("What position? [From 1 to %d]\n", my_head->count+1);
+            pos = get_int();
+        } while (pos < 1 || pos > my_head->count+1);
+
         if(my_head&&new_node)
             {
                 if (!(my_head->count)) // Проверка на пустой список

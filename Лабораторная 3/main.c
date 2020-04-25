@@ -41,13 +41,14 @@ Head *make_head();
 Node *create_node();
 void *add_first(Head *my_head, Node *new_node);
 void *add_last(Head *my_head, Node *new_node);
-void insert(Head *my_head, Node *new_node, int pos);
+void insert(Head *my_head, Node *new_node);
 void print_tutors(Head *my_head);
 Head *selected(Head *my_head);
 Node *clean_node(Node *node);
 Head *clean_list(Head *HEAD);
+void swap(Head *HEAD);
 void remove_node(Head *my_head);
-int Menu();
+int Menu(int q);
 void Help();
 
 int main()
@@ -55,10 +56,10 @@ int main()
     Head *HEAD = NULL, *NEW_HEAD = NULL;
     Node *p = NULL;
     HEAD = make_head();
-    int Q, output = 0, pos;
+    int Q, Q3,output = 0;
     char c = 0;
     do {
-        Q = Menu();
+        Q = Menu(0);
         switch (Q)
         {
             case 1:     //input
@@ -86,12 +87,7 @@ int main()
                             add_last(HEAD, p);
                             break;
                         case 51:
-                            do
-                            {
-                                printf("What position? [From 1 to %d]\n", HEAD->count+1);
-                                pos = get_int();
-                            } while (pos < 1 || pos > HEAD->count+1);
-                            insert(HEAD, p, pos);
+                            insert(HEAD, p);
                             break;
                         case 13:
                             printf("Successful input.\n");
@@ -114,12 +110,41 @@ int main()
                     printf("No input to print!\n");
                 break;
             case 3:
-                if (HEAD->count)
+                if (HEAD->count != 0)
                 {
-                    remove_node(HEAD);
+                    do
+                    {
+                        Q3 = Menu(3);
+                        switch (Q3)
+                        {
+                            case 1:
+                                if (HEAD->count > 1)
+                                    do
+                                    {
+                                        swap(HEAD);
+                                        puts("Once more swap? Press Enter - No, press any key - Yes");
+                                        c = getch();
+                                    } while (c != 13);
+                                else
+                                {
+                                    Q3=0;
+                                    puts("The list must have more than one item.");
+                                }
+                                break;
+                            case 2:
+                                remove_node(HEAD);
+                                break;
+                            case 0:
+                                Q3=0;
+                                break;
+                            default:
+                                puts("Try again!");
+                                break;
+                        }
+                    } while (Q3 != 0);
                 }
                 else
-                    printf("No input to remove\n");
+                    printf("No input to actions!\n");
                 break;
             case 4:     //process
                 if (HEAD->count)
@@ -308,10 +333,17 @@ void *add_last(Head *my_head, Node *new_node) // Добавить новую запись последней
         }
     }
 
-void insert(Head *my_head, Node *new_node, int pos) // Вставка в любое место
+void insert(Head *my_head, Node *new_node) // Вставка в любое место
     {
-        int i;
+        int i, pos;
         Node *p;
+
+        do
+        {
+            printf("What position? [From 1 to %d]\n", my_head->count+1);
+            pos = get_int();
+        } while (pos < 1 || pos > my_head->count+1);
+
         if(my_head&&new_node)
             {
                 if (!(my_head->count)) // Проверка на пустой список
@@ -400,6 +432,65 @@ void remove_node(Head *my_head)
     } while (c==49 && my_head->count>0);
 }
 
+void swap(Head *HEAD)
+{
+    int i, first, second;
+    Node *p_one, *p_two;
+    Node *buff_one, *buff_two;
+
+    do
+    {
+        printf("Enter first item number [from 1 to %d]: ", HEAD->count);
+        first = get_int();
+        printf("Enter second item number [from 1 to %d]: ", HEAD->count);
+        second = get_int();
+        if (first>second)
+            puts("The first number must be less that the second.");
+    } while (first<1 || second>HEAD->count || first>=second);
+
+    p_one = HEAD->first;
+    for (i=1; i<first-1; i++)
+        p_one = p_one->next; // Получим адрес предыдущего элемента
+    p_two = HEAD->first;
+    for (i=1; i<second-1; i++) // Получим адрес предыдущего элемента
+        p_two = p_two->next;
+
+    if (first != 1)
+    {
+        buff_one = p_one->next; // Адрес первого элемента
+        buff_two = p_two->next; // Адрес второго элемента
+        p_one->next = buff_two;
+        p_two->next = buff_one;
+        buff_two->prev = p_one; // Предыдущий для второго элемента - предыдущий для первого элемента
+        buff_one->prev = p_two; // Предыдущий для первого элемента - предыдущий для второго элемента
+        p_one = buff_one->next; // Адрес элемента следующего за первым
+        p_two = buff_two->next; // Адрес элемента следующего за вторым
+        buff_one->next = p_two;
+        buff_two->next = p_one;
+        if (buff_two == HEAD->last)
+            HEAD->last = buff_one;
+        else
+            p_two->prev = buff_one;
+    }
+    else
+    {
+        buff_two = p_two->next; // Адрес второго элемента
+        buff_one = p_one; // Адрес первого элемента
+        HEAD->first = buff_two;
+        p_two->next = buff_one;
+        buff_two->prev = p_one;
+        buff_one->prev = p_two;
+        p_one = buff_one->next; // Адрес следующего элемента
+        p_two = buff_two->next; // Адрес следующего элемента
+        buff_one->next = p_two;
+        buff_two->next = p_one;
+        if (buff_two == HEAD->last)
+            HEAD->last = buff_one;
+        else
+            p_two->prev = buff_one;
+    }
+}
+
 void print_tutors(Head *my_head)
 {
     int i;
@@ -475,18 +566,29 @@ Head *clean_list(Head *HEAD)
     return NULL;
 }
 
-int Menu()
+int Menu(int q)
 	{
 	    int Q; // Выбор пользователя
         system("cls");
         puts("MENU");
-        puts("1 - Input data");
-        puts("2 - Output data");
-        puts("3 - Remove any element");
-        puts("4 - Filter");
-        puts("5 - Output result");
-        puts("6 - Help");
-        puts("0 - Exit");
+        switch(q)
+        {
+            case 0:
+                puts("1 - Input data");
+                puts("2 - Output data");
+                puts("3 - Actions with the database");
+                puts("4 - Filter");
+                puts("5 - Output result");
+                puts("6 - Help");
+                puts("0 - Exit");
+                break;
+            case 3:
+                puts("1 - Swap any items");
+                puts("2 - Remove any items");
+                puts("0 - Come back");
+                break;
+        }
+
 		printf("Select menu item - ");
 		scanf("%d", &Q);
 		printf("\n");
