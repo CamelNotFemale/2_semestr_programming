@@ -259,14 +259,17 @@ void *add_item(tutor *list) // Добавить элемент в список
         list->name = get_string();
         printf("Enter academic subject: \n");
         list->subject = get_subject();
-        printf("Enter price per 1 hour(RUB): \n");
-        list->price = get_int();
+        do
+        {
+            printf("Enter price per 1 hour(RUB): \n");
+            list->price = get_int();
+        } while (list->price<0);
         printf("Enter qualifications: \n");
         scanf("%c", &(list->qual));
         while ((c=getchar()) != '\n' && c != EOF);
         do
         {
-            printf("Enter tutor's rating: \n");
+            printf("Enter tutor's rating[From 0 to 5]: \n");
             list->rating = get_float();
         } while (list->rating <= 0 || list->rating > 5);
     }
