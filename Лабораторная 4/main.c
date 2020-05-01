@@ -32,27 +32,26 @@ typedef struct
         Node *last;
     } Head; // Голова двусвязного списка
 
-// Получение валидных значений //
+// Получение валидных значений
 char *get_string(); // Получение строки
 int get_int(); // Получение целого числа
 float get_float(); // ПОлучение числа с плавающей запятой
 char *get_subject(); // Получение учебного предмета
-// Работа со списком //
+// Работа со списком
 void *add_item(tutor *list); // Заполнение информационных полей у репетитора
 Head *make_head(); // Инициализация головы списка
 Node *create_node(); // Создать элемент списка
 void *add_first(Head *my_head, Node *new_node); // Добавить элемент в начало списка
 void *add_last(Head *my_head, Node *new_node); // Добавить элемент в конец списка
 void insert(Head *my_head, Node *new_node); // Вставка в произвольное место
-void swap(Head *HEAD, int first, int second); // Перестановка двух элементов
-void sort(Head *HEAD); // Сортировка списка по одному из полей
+void swap(Head *HEAD); // Перестановка двух элементов
 void remove_node(Head *my_head); // Удаление элемента
 Node *copy_node(Node *NODE); // Копирование элемента
 void print_tutors(Head *my_head); // Печать списка в виде таблицы
 Head *selected(Head *my_head); // Процесс фильтрации
 Node *clean_node(Node *); // Очистка памяти для одной записи
 Head *clean_list(Head *HEAD); // Очистить память под список
-// Интерфейс //
+// Интерфейс
 int Menu(); // Вывод меню и выбор его пункта
 void Help(); // Справка
 
@@ -62,7 +61,6 @@ int main()
     Node *p = NULL;
     HEAD = make_head();
     int Q, Q3,output = 0;
-    int first, second;
     char c = 0;
     do {
         Q = Menu(0);
@@ -127,16 +125,7 @@ int main()
                                 if (HEAD->count > 1)
                                     do
                                     {
-                                        do
-                                        {
-                                            printf("Enter first item number [from 1 to %d]: ", HEAD->count);
-                                            first = get_int();
-                                            printf("Enter second item number [from 1 to %d]: ", HEAD->count);
-                                            second = get_int();
-                                            if (first>second)
-                                                puts("The first number must be less that the second.");
-                                        } while (first<1 || second>HEAD->count || first>=second);
-                                        swap(HEAD, first, second);
+                                        swap(HEAD);
                                         puts("Once more swap? Press Enter - No, press any key - Yes");
                                         c = getch();
                                     } while (c != 13);
@@ -148,9 +137,6 @@ int main()
                                 break;
                             case 2:
                                 remove_node(HEAD);
-                                break;
-                            case 3:
-                                sort(HEAD);
                                 break;
                             case 0:
                                 Q3=0;
@@ -167,8 +153,6 @@ int main()
             case 4:     //process
                 if (HEAD->count)
                 {
-                    if (NEW_HEAD)
-                        NEW_HEAD = clean_list(NEW_HEAD);
                     NEW_HEAD = selected(HEAD);
                     output = 1;
                 }
@@ -455,11 +439,21 @@ void remove_node(Head *my_head)
     } while (c==49 && my_head->count>0);
 }
 
-void swap(Head *HEAD, int first, int second)
+void swap(Head *HEAD)
 {
-    int i;
+    int i, first, second;
     Node *p_one, *p_two;
     Node *buff_one, *buff_two;
+
+    do
+    {
+        printf("Enter first item number [from 1 to %d]: ", HEAD->count);
+        first = get_int();
+        printf("Enter second item number [from 1 to %d]: ", HEAD->count);
+        second = get_int();
+        if (first>second)
+            puts("The first number must be less that the second.");
+    } while (first<1 || second>HEAD->count || first>=second);
 
     p_one = HEAD->first;
     for (i=1; i<first-1; i++)
@@ -501,84 +495,6 @@ void swap(Head *HEAD, int first, int second)
             HEAD->last = buff_one;
         else
             p_two->prev = buff_one;
-    }
-}
-// Возвращает 1, если left>right, -1 - если left>right, 0 - в случае равенства
-int compare(Node *left, Node *right, int type)
-{
-    int result;
-
-    switch (type)
-    {
-        case 1:
-            result = strcmp((left->info).name, (right->info).name);
-            break;
-        case 2:
-            result = strcmp((left->info).subject, (right->info).subject);
-            break;
-        case 3:
-            if ((left->info).price > (right->info).price)
-                result = 1;
-            else if ((left->info).price < (right->info).price)
-                result = -1;
-            else
-                result = 0;
-            break;
-        case 4:
-            if ((left->info).qual > (right->info).qual)
-                result = 1;
-            else if ((left->info).qual < (right->info).qual)
-                result = -1;
-            else
-                result = 0;
-            break;
-        case 5:
-            if ((left->info).rating > (right->info).rating)
-                result = 1;
-            else if ((left->info).rating < (right->info).rating)
-                result = -1;
-            else
-                result = 0;
-            break;
-    }
-
-    return result;
-}
-
-void sort(Head *HEAD)
-{
-    int i, j, // Параметры цикла для перебора элементов
-        type; // Тип поля, по которому сортируется список
-    char decrease; // По убыванию (==13) или же по возрастанию (!=13)
-    Node *p=NULL, *buff=NULL, *temp = NULL;
-
-    do
-    {
-        printf("Enter the field number to sort[from 1 to 5]\n");
-        printf("1 - Name, 2 - Subject, 3 - Price, 4 - Qualification, 5 - Rating\n");
-        type = get_int();
-    } while (type<1 || type>5);
-    printf("Sort Descending? Press Enter - Yes, any key - Sort Ascending");
-    decrease = getch();
-
-    p = HEAD->first;
-    for (i=1; i<=HEAD->count-1; i++)
-    {
-        buff = p->next;
-        for (j=i+1; j<=HEAD->count; j++)
-        {
-
-            if ((decrease==13) ? (compare(buff, p, type) > 0) : (compare(buff, p, type) < 0)) // Если buff > p, то поменять их местами
-            {
-                swap(HEAD, i, j);
-                temp = p;
-                p = buff;
-                buff = temp->next;
-            }
-            else
-                buff = buff->next;
-        }
-        p = p->next;
     }
 }
 
@@ -697,7 +613,6 @@ int Menu(int q)
             case 3:
                 puts("1 - Swap any items");
                 puts("2 - Remove any items");
-                puts("3 - Sort database");
                 puts("0 - Come back");
                 break;
         }
