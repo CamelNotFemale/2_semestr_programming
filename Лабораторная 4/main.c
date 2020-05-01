@@ -32,26 +32,24 @@ typedef struct
         Node *last;
     } Head; // Голова двусвязного списка
 
-// Получение валидных значений
+// Получение валидных значений //
 char *get_string(); // Получение строки
 int get_int(); // Получение целого числа
 float get_float(); // ПОлучение числа с плавающей запятой
 char *get_subject(); // Получение учебного предмета
-// Работа со списком
+// Работа со списком //
 void *add_item(tutor *list); // Заполнение информационных полей у репетитора
 Head *make_head(); // Инициализация головы списка
 Node *create_node(); // Создать элемент списка
 void *add_first(Head *my_head, Node *new_node); // Добавить элемент в начало списка
 void *add_last(Head *my_head, Node *new_node); // Добавить элемент в конец списка
-void insert(Head *my_head, Node *new_node); // Вставка в произвольное место
-void swap(Head *HEAD); // Перестановка двух элементов
-void remove_node(Head *my_head); // Удаление элемента
+void remove_node(Head *my_head, int pos); // Удаление элемента
 Node *copy_node(Node *NODE); // Копирование элемента
 void print_tutors(Head *my_head); // Печать списка в виде таблицы
-Head *selected(Head *my_head); // Процесс фильтрации
 Node *clean_node(Node *); // Очистка памяти для одной записи
+void get_item(Head *HEAD, Node *p); // Вывод элемента и его удаление
 Head *clean_list(Head *HEAD); // Очистить память под список
-// Интерфейс
+// Интерфейс //
 int Menu(); // Вывод меню и выбор его пункта
 void Help(); // Справка
 
@@ -60,128 +58,111 @@ int main()
     Head *HEAD = NULL, *NEW_HEAD = NULL;
     Node *p = NULL;
     HEAD = make_head();
-    int Q, Q3,output = 0;
+    int Mode, Q, Q3,output = 0;
+    int first, second;
     char c = 0;
-    do {
-        Q = Menu(0);
-        switch (Q)
+    do
+    {
+        Mode = Menu(-1);
+        switch (Mode)
         {
-            case 1:     //input
-                output = 0;
-                if (HEAD->count) // Если перезаписываем список
-                {
-                    clean_list(HEAD);
-                    if (NEW_HEAD)
-                        NEW_HEAD = clean_list(NEW_HEAD);
-                    HEAD->count = 0;
-                    HEAD->first=NULL;
-                    HEAD->last=NULL;
-                }
-                do
-                {
-                    printf("Press 1 - Add node to start, 2 - Add node to end, 3 - Insert node\nPress Enter to stop\n");
-                    c = getch();
-                    if (c != 13) p = create_node();
-                    switch (c)
+            case 1: // Queue
+                do {
+                    puts("QUEUE MODE");
+                    Q = Menu(0);
+                    switch (Q)
                     {
-                        case 49:
-                            add_first(HEAD, p);
-                            break;
-                        case 50:
+                        case 1:     //input
+                            p = create_node();
                             add_last(HEAD, p);
-                            break;
-                        case 51:
-                            insert(HEAD, p);
-                            break;
-                        case 13:
                             printf("Successful input.\n");
                             break;
+                        case 2:     //output
+                            if (HEAD->count)
+                                print_tutors(HEAD);
+                            else
+                                printf("No input to print!\n");
+                            break;
+                        case 3:
+                            if (HEAD->count != 0)
+                            {
+                                get_item(HEAD, HEAD->first);
+                            }
+                            else
+                                printf("No input to actions!\n");
+                            break;
+                        case 4:     //process
+                            if (HEAD->count)
+                            {
+                                remove_node(HEAD, 1);
+                                puts("First in the queue was deleted successfully");
+                            }
+                            else
+                                printf("No input to remove!\n");
+                            break;
+                        case 0:
+                            break;
                         default:
-                            puts("Error, try again.\n");
+                            printf("Error! Try again!\n");
+                            break;
                     }
-                    /*printf("Our Node {%p} and his price %d\n", p, (p->info).price);
-                    p = HEAD->first;
-                    for (int i=0; i<HEAD->count; i++) {
-                        printf("[%d] prev: {%p} next {%p}\n", i+1, p->prev, p->next);
-                        p = p->next;
-                    }*/
-                } while (c != 13);
+                    system("pause");
+                } while (Q);
                 break;
-            case 2:     //output
-                if (HEAD->count)
-                    print_tutors(HEAD);
-                else
-                    printf("No input to print!\n");
+            case 2: // Stack
+                do {
+                    puts("STACK MODE");
+                    Q = Menu(0);
+                    switch (Q)
+                    {
+                        case 1:     //input
+                            p = create_node();
+                            add_first(HEAD, p);
+                            printf("Successful input.\n");
+                            break;
+                        case 2:     //output
+                            if (HEAD->count)
+                                print_tutors(HEAD);
+                            else
+                                printf("No input to print!\n");
+                            break;
+                        case 3:
+                            if (HEAD->count != 0)
+                            {
+                                get_item(HEAD, HEAD->first);
+                            }
+                            else
+                                printf("No input to actions!\n");
+                            break;
+                        case 4:     //process
+                            if (HEAD->count)
+                            {
+                                remove_node(HEAD, 1);
+                                puts("First item successfully deleted");
+                            }
+                            else
+                                printf("No input to remove!\n");
+                            break;
+                        case 0:
+                            break;
+                        default:
+                            printf("Error! Try again!\n");
+                            break;
+                    }
+                    system("pause");
+                } while (Q);
                 break;
             case 3:
-                if (HEAD->count != 0)
-                {
-                    do
-                    {
-                        Q3 = Menu(3);
-                        switch (Q3)
-                        {
-                            case 1:
-                                if (HEAD->count > 1)
-                                    do
-                                    {
-                                        swap(HEAD);
-                                        puts("Once more swap? Press Enter - No, press any key - Yes");
-                                        c = getch();
-                                    } while (c != 13);
-                                else
-                                {
-                                    Q3=0;
-                                    puts("The list must have more than one item.");
-                                }
-                                break;
-                            case 2:
-                                remove_node(HEAD);
-                                break;
-                            case 0:
-                                Q3=0;
-                                break;
-                            default:
-                                puts("Try again!");
-                                break;
-                        }
-                    } while (Q3 != 0);
-                }
-                else
-                    printf("No input to actions!\n");
-                break;
-            case 4:     //process
-                if (HEAD->count)
-                {
-                    NEW_HEAD = selected(HEAD);
-                    output = 1;
-                }
-                else
-                    printf("No input to process!\n");
-                break;
-            case 5:     //output result
-                if (output)
-                    if (NEW_HEAD->count) print_tutors(NEW_HEAD);
-                    else printf("Tutors not found.\n");
-                else
-                    printf("No processed data to output!\n");
-                break;
-            case 6:     //help
                 Help();
-                break;
             case 0:     //exit
                 printf("Good buy, see you soon!\n");
                 break;
-            default:
-                printf("Error! Try again!\n");
-                break;
         }
-        system("pause");
-    } while (Q);
+    } while (Mode);
+
     // Очистка всего мусора
-    HEAD = clean_list(HEAD);
-    if (NEW_HEAD)
-        NEW_HEAD = clean_list(NEW_HEAD);
+    if (HEAD)
+        HEAD = clean_list(HEAD);
     return 0;
 }
 
@@ -380,122 +361,42 @@ void insert(Head *my_head, Node *new_node) // Вставка в любое место
             }
     }
 
-void remove_node(Head *my_head)
+void remove_node(Head *my_head, int pos)
 {
     Node *p;
-    int i, pos;
+    int i;
     char c;
 
-    printf("Do you want see list of tutors? Press 1 if you want or press any key otherwise\n");
-    c = getch();
-    if (c == 49)
-        print_tutors(my_head);
-    do
+    p = my_head->first;
+    if (my_head->count > 1)
     {
-        do
+        for (i=1; i<pos; i++) // Проматываем до удаляемого элемента
         {
-            printf("Remove element with number [from 1 to %d]: ", my_head->count);
-            pos = get_int();
-        } while (pos<1 || pos>my_head->count);
-
-        p = my_head->first;
-        if (my_head->count > 1)
+            p = p->next;
+        }
+        if (pos==1)
         {
-            for (i=1; i<pos; i++) // Проматываем до удаляемого элемента
-            {
-                p = p->next;
-            }
-            if (pos==1)
-            {
-                my_head->first = p->next;
-                (p->next)->prev = NULL;
-            }
-            else if (pos==my_head->count)
-            {
-                my_head->last = p->prev;
-                (p->prev)->next = NULL;
-            }
-            else
-            {
-                (p->prev)->next = p->next;
-                (p->next)->prev = p->prev;
-            }
+            my_head->first = p->next;
+            (p->next)->prev = NULL;
+        }
+        else if (pos==my_head->count)
+        {
+            my_head->last = p->prev;
+            (p->prev)->next = NULL;
         }
         else
         {
-            my_head->first = NULL;
-            my_head->last = NULL;
+            (p->prev)->next = p->next;
+            (p->next)->prev = p->prev;
         }
-        my_head->count--;
-        clean_node(p);
-
-        if (my_head->count > 0)
-        {
-            printf("Delete more? Press 1 - Yes, any key - No\n");
-            c = getch();
-        }
-        else
-            c=49;
-    } while (c==49 && my_head->count>0);
-}
-
-void swap(Head *HEAD)
-{
-    int i, first, second;
-    Node *p_one, *p_two;
-    Node *buff_one, *buff_two;
-
-    do
-    {
-        printf("Enter first item number [from 1 to %d]: ", HEAD->count);
-        first = get_int();
-        printf("Enter second item number [from 1 to %d]: ", HEAD->count);
-        second = get_int();
-        if (first>second)
-            puts("The first number must be less that the second.");
-    } while (first<1 || second>HEAD->count || first>=second);
-
-    p_one = HEAD->first;
-    for (i=1; i<first-1; i++)
-        p_one = p_one->next; // Получим адрес предыдущего элемента
-    p_two = HEAD->first;
-    for (i=1; i<second-1; i++) // Получим адрес предыдущего элемента
-        p_two = p_two->next;
-
-    if (first != 1)
-    {
-        buff_one = p_one->next; // Адрес первого элемента
-        buff_two = p_two->next; // Адрес второго элемента
-        p_one->next = buff_two;
-        p_two->next = buff_one;
-        buff_two->prev = p_one; // Предыдущий для второго элемента - предыдущий для первого элемента
-        buff_one->prev = p_two; // Предыдущий для первого элемента - предыдущий для второго элемента
-        p_one = buff_one->next; // Адрес элемента следующего за первым
-        p_two = buff_two->next; // Адрес элемента следующего за вторым
-        buff_one->next = p_two;
-        buff_two->next = p_one;
-        if (buff_two == HEAD->last)
-            HEAD->last = buff_one;
-        else
-            p_two->prev = buff_one;
     }
     else
     {
-        buff_two = p_two->next; // Адрес второго элемента
-        buff_one = p_one; // Адрес первого элемента
-        HEAD->first = buff_two;
-        p_two->next = buff_one;
-        buff_two->prev = p_one;
-        buff_one->prev = p_two;
-        p_one = buff_one->next; // Адрес следующего элемента
-        p_two = buff_two->next; // Адрес следующего элемента
-        buff_one->next = p_two;
-        buff_two->next = p_one;
-        if (buff_two == HEAD->last)
-            HEAD->last = buff_one;
-        else
-            p_two->prev = buff_one;
+        my_head->first = NULL;
+        my_head->last = NULL;
     }
+    my_head->count--;
+    clean_node(p);
 }
 
 Node *copy_node(Node *NODE)
@@ -519,6 +420,19 @@ Node *copy_node(Node *NODE)
     return p;
 }
 
+void get_item(Head *HEAD, Node *p)
+{
+
+    printf("  %s\n  %s teacher\n  Price per hour(RUB): %d\n  Qualification: %c\n  Rating: %.2f\n", (p->info).name, (p->info).subject, (p->info).price, (p->info).qual, (p->info).rating);
+
+    if (p->next == NULL)
+        remove_node(HEAD, HEAD->count);
+    else
+        remove_node(HEAD, 1);
+
+
+}
+
 void print_tutors(Head *my_head)
 {
     int i;
@@ -534,35 +448,6 @@ void print_tutors(Head *my_head)
     }
 }
 
-Head *selected(Head *my_head)
-{
-    Head *NEW_HEAD = NULL;
-    Node *p = NULL;
-    int i; // Параметр цикла
-    int maxPrice = 0;
-    float minRating = 0;
-    char *subject = NULL;
-    NEW_HEAD = make_head();
-
-    printf("Select subject that you need:\n");
-    subject = get_subject();
-    printf("Select max price per hour(RUB): ");
-    maxPrice = get_int();
-    printf("Select min tutor`s rating: ");
-    minRating = get_float();
-
-    p = my_head->first;
-    for (i=0; i<my_head->count; i++)
-    {
-        if (((p->info).price <= maxPrice) && ((p->info).rating >= minRating) && (strcmp((p->info).subject, subject)==0))
-        {
-            add_last(NEW_HEAD, copy_node(p));
-        }
-        p = p->next;
-    }
-
-    return NEW_HEAD;
-}
 // Очистка для конкретной записи
 Node *clean_node(Node *node)
 {
@@ -570,6 +455,8 @@ Node *clean_node(Node *node)
     free((node->info).name);
     (node->info).subject = NULL;
     (node->info).name = NULL;
+    node->next = NULL;
+    node->prev = NULL;
     free(node);
     return NULL;
 }
@@ -598,22 +485,21 @@ int Menu(int q)
 	{
 	    int Q; // Выбор пользователя
         system("cls");
-        puts("MENU");
         switch(q)
         {
-            case 0:
-                puts("1 - Input data");
-                puts("2 - Output data");
-                puts("3 - Actions with the database");
-                puts("4 - Filter");
-                puts("5 - Output result");
-                puts("6 - Help");
+            case -1:
+                puts("MENU");
+                puts("1 - Queue Mode");
+                puts("2 - Stack Mode");
+                puts("3 - Help");
                 puts("0 - Exit");
                 break;
-            case 3:
-                puts("1 - Swap any items");
-                puts("2 - Remove any items");
-                puts("0 - Come back");
+            case 0:
+                puts("1 - Add item");
+                puts("2 - Output data");
+                puts("3 - Get item");
+                puts("4 - Delete item");
+                puts("0 - To the Main menu");
                 break;
         }
 
@@ -628,6 +514,10 @@ void Help()
 {
     system("cls");
     printf("\tHELP\n");
-    printf("  We'll help you chosen a tutor. At first, upload(Enter)\ndatabase using menu item 1. Filter database using menu item 4.\n");
-    printf("  To get the result of program use menu item 5.\n  To finish work use menu item 0.\n");
+    puts("  To work, you need to select the mode: queue or stack.");
+    puts("  You can add an item (1 menu item), see the entire list (2 menu item),");
+    puts("   view information about an item and delete it (3 menu item),");
+    puts("   and also delete the item without viewing the content (4 menu item).");
+    puts("  To exit the program, select the Exit menu item.\n");
+    system("pause");
 }
