@@ -33,45 +33,44 @@ typedef struct
         Node *last;
     } Head; // Голова двусвязного списка
 
-char *get_string();
-int get_int();
-float get_float();
-char *get_subject();
-void *add_item(tutor *list);
-Head *make_head();
-Node *create_node();
-void *add_first(Head *my_head, Node *new_node);
-void *add_last(Head *my_head, Node *new_node);
-void insert(Head *my_head, Node *new_node);
-void swap(Head *HEAD);
-void remove_node(Head *my_head);
-Node *copy_node(Node *NODE);
-void print_tutors(Head *my_head);
-Head *selected(Head *my_head);
-Node *clean_node(Node *node);
-Head *clean_list(Head *HEAD);
+// Получение валидных значений //
+char *get_string(); // Получение строки
+int get_int(); // Получение целого числа
+float get_float(); // ПОлучение числа с плавающей запятой
+char *get_subject(); // Получение учебного предмета
+// Работа со списком //
+void fill_node(tutor *list); // Заполнение информационных полей у репетитора
+Head *make_head(); // Инициализация головы списка
+void add_item(Head *HEAD); // Добавить элемент в список
+Node *create_node(); // Создать элемент списка
+void *add_first(Head *my_head, Node *new_node); // Добавить элемент в начало списка
+void *add_last(Head *my_head, Node *new_node); // Добавить элемент в конец списка
+void insert(Head *my_head, Node *new_node); // Вставка в произвольное место
+void swap(Head *HEAD, int first, int second); // Перестановка двух элементов
+void sort(Head *HEAD); // Сортировка списка по одному из полей
+void remove_node(Head *my_head); // Удаление элемента
+Node *copy_node(Node *NODE); // Копирование элемента
+void print_tutors(Head *my_head); // Печать списка в виде таблицы
+Head *selected(Head *my_head); // Процесс фильтрации
+Node *clean_node(Node *); // Очистка памяти для одной записи
+Head *clean_list(Head *HEAD); // Очистить память под список
 // Работа с файлом
-void clear_str_array(char **str, int n);
-char **simple_split(char *str, int length, char sep);
-void get_database(Head *HEAD);
-Node *fill_node(char **s2);
+void clear_str_array(char **str, int n); // Очистка вспомогательного массива строк
+char **simple_split(char *str, int length, char sep); // Преобразование строки файла в массив из полей структуры
+int get_database(Head *HEAD, int MODE); // Чтение текста из файлаа
+Node *convert_to_node(char **s2); // Заполнение структуры при помощи вспомогательного массива строк из simple_split
 
 int Menu();
 void Help();
 
 int main()
 {
-    /*Head *HEAD = NULL, *NEW_HEAD = NULL;
-    Node *p = NULL;
-
-    HEAD = make_head();
-
-    get_database(HEAD);*/
-
     Head *HEAD = NULL, *NEW_HEAD = NULL;
     Node *p = NULL;
     HEAD = make_head();
-    int Q, Q1, Q3,output = 0;
+    int Q, Q1, Q12, Q3,output = 0;
+    int first, second,
+        valid_file;
     char c = 0;
     do {
         Q = Menu(0);
@@ -81,12 +80,10 @@ int main()
                 output = 0;
                 if (HEAD->count) // Если перезаписываем список
                 {
-                    clean_list(HEAD);
+                    HEAD = clean_list(HEAD);
+                    HEAD = make_head();
                     if (NEW_HEAD)
                         NEW_HEAD = clean_list(NEW_HEAD);
-                    HEAD->count = 0;
-                    HEAD->first=NULL;
-                    HEAD->last=NULL;
                 }
                 do
                 {
@@ -94,40 +91,43 @@ int main()
                     switch (Q1)
                     {
                         case 1:
+                            add_item(HEAD);
+                            printf("Successful input.\n");
+                            Q1=0;
+                            break;
+                        case 2:
                             do
                             {
-                                printf("Press 1 - Add node to start, 2 - Add node to end, 3 - Insert node\nPress Enter to stop\n");
-                                c = getch();
-                                if (c != 13) p = create_node();
-                                switch (c)
+                                Q12 = Menu(12);
+                                switch (Q12)
                                 {
-                                    case 49:
-                                        add_first(HEAD, p);
+                                    case 1:
+                                        valid_file = get_database(HEAD, 0); // database.txt
+                                        if (valid_file==1)
+                                            printf("Successful input.\n");
+                                        else if (valid_file == 0)
+                                            printf("Error: Nonexistent file.\n");
+                                        else
+                                            printf("Error reading from file.\n");
+                                        Q12 = 0;
                                         break;
-                                    case 50:
-                                        add_last(HEAD, p);
+                                    case 2:
+                                        valid_file = get_database(HEAD, 1); // enter the path of file
+                                        if (valid_file==1)
+                                            printf("Successful input.\n");
+                                        else if (valid_file == 0)
+                                            printf("Error: Nonexistent file.\n");
+                                        else
+                                            printf("Error reading from file.\n");
+                                        Q12 = 0;
                                         break;
-                                    case 51:
-                                        insert(HEAD, p);
-                                        break;
-                                    case 13:
-                                        printf("Successful input.\n");
+                                    case 0:
                                         break;
                                     default:
                                         puts("Error, try again.\n");
                                 }
-                                /*printf("Our Node {%p} and his price %d\n", p, (p->info).price);
-                                p = HEAD->first;
-                                for (int i=0; i<HEAD->count; i++) {
-                                    printf("[%d] prev: {%p} next {%p}\n", i+1, p->prev, p->next);
-                                    p = p->next;
-                                }*/
-                            } while (c != 13);
-                            Q1=0;
-                            break;
-                        case 2:
-                            puts("oops");
-                            // Ввод с файла (По-умолчанию / Произвольного)
+                            } while (Q12 != 0);
+
                             Q1=0;
                             break;
                         case 0:
@@ -156,7 +156,16 @@ int main()
                                 if (HEAD->count > 1)
                                     do
                                     {
-                                        swap(HEAD);
+                                        do
+                                        {
+                                            printf("Enter first item number [from 1 to %d]: ", HEAD->count);
+                                            first = get_int();
+                                            printf("Enter second item number [from 1 to %d]: ", HEAD->count);
+                                            second = get_int();
+                                            if (first>second)
+                                                puts("The first number must be less that the second.");
+                                        } while (first<1 || second>HEAD->count || first>=second);
+                                        swap(HEAD, first, second);
                                         puts("Once more swap? Press Enter - No, press any key - Yes");
                                         c = getch();
                                     } while (c != 13);
@@ -168,6 +177,14 @@ int main()
                                 break;
                             case 2:
                                 remove_node(HEAD);
+                                break;
+                            case 3:
+                                sort(HEAD);
+                                puts("Successfully sorted.");
+                                system("pause");
+                                break;
+                            case 4:
+                                add_item(HEAD);
                                 break;
                             case 0:
                                 Q3=0;
@@ -210,12 +227,10 @@ int main()
         system("pause");
     } while (Q);
     // Очистка всего мусора
-    HEAD = clean_list(HEAD);
+    if (HEAD->count != 0)
+        HEAD = clean_list(HEAD);
     if (NEW_HEAD)
-    {
         NEW_HEAD = clean_list(NEW_HEAD);
-    }
-
 
     return 0;
 }
@@ -279,20 +294,28 @@ char **simple_split(char *str, int length, char sep)
      return str_array;
 }
 
-void get_database(Head *HEAD)
+int get_database(Head *HEAD, int MODE)
 {
     Node *p;
-    int slen,i,count,flag=1;
+    int slen,i,count,flag=1,
+        valid_file; // Код ошибки или же успешного чтения из файла: 1-успешно, 0-несуществующий файл, -1-ошибка чтения файла
     char sep;
     char s1[MAXSTR];
     char **s2=NULL;
-    FILE *df;
 
-    df=fopen("database.txt","r");
+    FILE *df;
+    if (MODE)
+    {
+        char c;
+        char *path;
+        puts("Type path to file or his name: ");
+        path = get_string();
+        df = fopen(path, "r");
+    }
+    else df = fopen("database.txt", "r");
+
     if(df!=NULL)
     {
-/* Reading data from file and filling structures */
-
         sep=';';
         count=0;
         i=0;
@@ -305,7 +328,7 @@ void get_database(Head *HEAD)
             s2=simple_split(s1,slen,sep);
             if(s2!=NULL)
             {
-                p = fill_node(s2);
+                p = convert_to_node(s2);
                 add_last(HEAD, p);
                 count++;
                 i++;
@@ -316,16 +339,20 @@ void get_database(Head *HEAD)
             else
             {
                 flag=0;
+                valid_file = -1;
                 puts("Row data not available!");
             }
         }
-        fclose(df);
+        if (fclose(df)!=EOF)
+            valid_file = 1;
     }
+    else
+        valid_file = 0;
 
-    print_tutors(HEAD);
+    return valid_file;
 }
 
-Node *fill_node(char **s2)
+Node *convert_to_node(char **s2)
 {
     Node *p = NULL;
     int len1, len2;
@@ -424,7 +451,7 @@ char *get_subject() // Функция выбора Учебного предмета из заданных заранее
     return choice;
 }
 
-void *add_item(tutor *list) // Добавить элемент в список
+void fill_node(tutor *list) // Добавить элемент в список
 {
     system("cls");
     char c;
@@ -461,14 +488,40 @@ Head *make_head() // Инициализация головы
         }
         return ph;
     }
-
+void add_item(Head *HEAD)
+{
+    Node *p=NULL;
+    char c;
+    do
+    {
+        printf("Press 1 - Add node to start, 2 - Add node to end, 3 - Insert node\nPress Enter to stop\n");
+        c = getch();
+        if (c != 13) p = create_node();
+        switch (c)
+        {
+            case 49:
+                add_first(HEAD, p);
+                break;
+            case 50:
+                add_last(HEAD, p);
+                break;
+            case 51:
+                insert(HEAD, p);
+                break;
+            case 13:
+                break;
+            default:
+                puts("Error, try again.\n");
+        }
+    } while (c != 13);
+}
 Node *create_node() // Создать заполненную запись
     {
         Node *new_node=NULL;
         new_node = (Node*)malloc(sizeof(Node));
         if(new_node)
         {
-            add_item(&(new_node->info));
+            fill_node(&(new_node->info));
         }
         new_node->prev = NULL;
         new_node->next = NULL;
@@ -553,12 +606,13 @@ void remove_node(Head *my_head)
     int i, pos;
     char c;
 
-    printf("Do you want see list of tutors? Press 1 if you want or press any key otherwise\n");
-    c = getch();
-    if (c == 49)
-        print_tutors(my_head);
     do
     {
+        system("cls");
+        printf("Do you want see list of tutors? Press 1 if you want or press any key otherwise\n");
+        c = getch();
+        if (c == 49)
+            print_tutors(my_head);
         do
         {
             printf("Remove element with number [from 1 to %d]: ", my_head->count);
@@ -606,21 +660,11 @@ void remove_node(Head *my_head)
     } while (c==49 && my_head->count>0);
 }
 
-void swap(Head *HEAD)
+void swap(Head *HEAD, int first, int second)
 {
-    int i, first, second;
+    int i;
     Node *p_one, *p_two;
     Node *buff_one, *buff_two;
-
-    do
-    {
-        printf("Enter first item number [from 1 to %d]: ", HEAD->count);
-        first = get_int();
-        printf("Enter second item number [from 1 to %d]: ", HEAD->count);
-        second = get_int();
-        if (first>second)
-            puts("The first number must be less that the second.");
-    } while (first<1 || second>HEAD->count || first>=second);
 
     p_one = HEAD->first;
     for (i=1; i<first-1; i++)
@@ -664,6 +708,84 @@ void swap(Head *HEAD)
             p_two->prev = buff_one;
     }
 }
+// Возвращает 1, если left>right, -1 - если left>right, 0 - в случае равенства
+int compare(Node *left, Node *right, int type)
+{
+    int result;
+
+    switch (type)
+    {
+        case 1:
+            result = strcmp((left->info).name, (right->info).name);
+            break;
+        case 2:
+            result = strcmp((left->info).subject, (right->info).subject);
+            break;
+        case 3:
+            if ((left->info).price > (right->info).price)
+                result = 1;
+            else if ((left->info).price < (right->info).price)
+                result = -1;
+            else
+                result = 0;
+            break;
+        case 4:
+            if ((left->info).qual > (right->info).qual)
+                result = 1;
+            else if ((left->info).qual < (right->info).qual)
+                result = -1;
+            else
+                result = 0;
+            break;
+        case 5:
+            if ((left->info).rating > (right->info).rating)
+                result = 1;
+            else if ((left->info).rating < (right->info).rating)
+                result = -1;
+            else
+                result = 0;
+            break;
+    }
+
+    return result;
+}
+
+void sort(Head *HEAD)
+{
+    int i, j, // Параметры цикла для перебора элементов
+        type; // Тип поля, по которому сортируется список
+    char decrease; // По убыванию (==13) или же по возрастанию (!=13)
+    Node *p=NULL, *buff=NULL, *temp = NULL;
+
+    do
+    {
+        printf("Enter the field number to sort[from 1 to 5]\n");
+        printf("1 - Name, 2 - Subject, 3 - Price, 4 - Qualification, 5 - Rating\n");
+        type = get_int();
+    } while (type<1 || type>5);
+    printf("Sort Descending? Press Enter - Yes, any key - Sort Ascending");
+    decrease = getch();
+
+    p = HEAD->first;
+    for (i=1; i<=HEAD->count-1; i++)
+    {
+        buff = p->next;
+        for (j=i+1; j<=HEAD->count; j++)
+        {
+
+            if ((decrease==13) ? (compare(buff, p, type) > 0) : (compare(buff, p, type) < 0)) // Если buff > p, то поменять их местами
+            {
+                swap(HEAD, i, j);
+                temp = p;
+                p = buff;
+                buff = temp->next;
+            }
+            else
+                buff = buff->next;
+        }
+        p = p->next;
+    }
+}
 
 Node *copy_node(Node *NODE)
 {
@@ -690,13 +812,13 @@ void print_tutors(Head *my_head)
 {
     int i;
     Node *p;
-    printf("|     Tutor`s name     |     Subject    |Price per hour(RUB)|Qualification| Rating |\n");
-    printf("|______________________|________________|___________________|_____________|________|\n");
+    printf("|Num|     Tutor`s name     |     Subject    | Price per hour |Qualification| Rating |\n");
+    printf("|___|______________________|________________|________________|_____________|________|\n");
     p = my_head->first;
     for (i = 0; i < my_head->count; i++)
     {
-        printf("|%22.22s|%16.16s|%19d|%13c|%8.2f|\n", (p->info).name, (p->info).subject, (p->info).price, (p->info).qual, (p->info).rating);
-        printf("|______________________|________________|___________________|_____________|________|\n");
+        printf("|%3d|%22.22s|%16.16s|%16d|%13c|%8.2f|\n", i+1, (p->info).name, (p->info).subject, (p->info).price, (p->info).qual, (p->info).rating);
+        printf("|___|______________________|________________|________________|_____________|________|\n");
         p = p->next;
     }
 }
@@ -745,15 +867,18 @@ Head *clean_list(Head *HEAD)
 {
     Node *p, *temp;
     int i;
+
     p = HEAD->first;
+    HEAD->count = 0;
     for (i = 0; i < HEAD->count; i++)
     {
         temp = p;
         p = p->next;
-        clean_node(temp);
+        temp->next = NULL;
+        temp->prev = NULL;
+        temp = clean_node(temp);
     }
-    free(HEAD->first);
-    free(HEAD->last);
+    free(HEAD);
     return NULL;
 }
 
@@ -778,9 +903,16 @@ int Menu(int q)
                 puts("2 - Input from file");
                 puts("0 - Come back");
                 break;
+            case 12:
+                puts("1 - Input from default file (database.txt)");
+                puts("2 - Select a file");
+                puts("0 - Come back");
+                break;
             case 3:
                 puts("1 - Swap any items");
                 puts("2 - Remove any items");
+                puts("3 - Sort database");
+                puts("4 - Add item");
                 puts("0 - Come back");
                 break;
         }
