@@ -58,6 +58,7 @@ Head *clean_list(Head *HEAD); // Очистить память под список
 void clear_str_array(char **str, int n); // Очистка вспомогательного массива строк
 char **simple_split(char *str, int length, char sep); // Преобразование строки файла в массив из полей структуры
 int get_database(Head *HEAD, int MODE); // Чтение текста из файлаа
+int write_to_file(Head *HEAD, int MODE); // Запись в файл
 Node *convert_to_node(char **s2); // Заполнение структуры при помощи вспомогательного массива строк из simple_split
 
 int Menu();
@@ -68,8 +69,8 @@ int main()
     Head *HEAD = NULL, *NEW_HEAD = NULL;
     Node *p = NULL;
     HEAD = make_head();
-    int Q, Q1, Q12, Q3,output = 0;
-    int first, second,
+    int Q, Q1, Q5, Q52, Q12, Q3, output = 0;
+    int first, second, buff,
         valid_file;
     char c = 0;
     do {
@@ -107,6 +108,8 @@ int main()
                                             printf("Successful input.\n");
                                         else if (valid_file == 0)
                                             printf("Error: Nonexistent file.\n");
+                                        else if (valid_file == 2)
+                                            printf("Error, file is empty.\n");
                                         else
                                             printf("Error reading from file.\n");
                                         Q12 = 0;
@@ -117,6 +120,8 @@ int main()
                                             printf("Successful input.\n");
                                         else if (valid_file == 0)
                                             printf("Error: Nonexistent file.\n");
+                                        else if (valid_file == 2)
+                                            printf("Error, file is empty.\n");
                                         else
                                             printf("Error reading from file.\n");
                                         Q12 = 0;
@@ -158,13 +163,22 @@ int main()
                                     {
                                         do
                                         {
+                                            system("cls");
+                                            printf("Do you want see list of tutors? Press 1 if you want or press any key otherwise\n");
+                                            c = getch();
+                                            if (c == 49)
+                                                print_tutors(HEAD);
                                             printf("Enter first item number [from 1 to %d]: ", HEAD->count);
                                             first = get_int();
                                             printf("Enter second item number [from 1 to %d]: ", HEAD->count);
                                             second = get_int();
-                                            if (first>second)
-                                                puts("The first number must be less that the second.");
-                                        } while (first<1 || second>HEAD->count || first>=second);
+                                        } while ((first<1 || second>HEAD->count) || (second<1 || first>HEAD->count));
+                                        if (first>second)
+                                            {
+                                                buff = first;
+                                                first = second;
+                                                second = buff;
+                                            }
                                         swap(HEAD, first, second);
                                         puts("Once more swap? Press Enter - No, press any key - Yes");
                                         c = getch();
@@ -186,6 +200,14 @@ int main()
                             case 4:
                                 add_item(HEAD);
                                 break;
+                            case 5:
+                                valid_file = write_to_file(HEAD, 1);
+                                if (valid_file == 1)
+                                    puts("Successful write to file");
+                                else
+                                    puts("Error write to file");
+                                system("pause");
+                                break;
                             case 0:
                                 Q3=0;
                                 break;
@@ -193,7 +215,7 @@ int main()
                                 puts("Try again!");
                                 break;
                         }
-                    } while (Q3 != 0);
+                    } while (Q3 != 0 && HEAD->count);
                 }
                 else
                     printf("No input to actions!\n");
@@ -209,8 +231,55 @@ int main()
                 break;
             case 5:     //output result
                 if (output)
-                    if (NEW_HEAD->count) print_tutors(NEW_HEAD);
-                    else printf("Tutors not found.\n");
+                    do
+                    {
+                        Q5 = Menu(5);
+                        switch (Q5)
+                        {
+                            case 1:
+                                if (NEW_HEAD->count) print_tutors(NEW_HEAD);
+                                else printf("Tutors not found.\n");
+                                Q5=0;
+                                break;
+                            case 2:
+                                do
+                                {
+                                    Q52 = Menu(52);
+                                    switch (Q52)
+                                    {
+                                        case 1:
+                                            if (NEW_HEAD->count) valid_file = write_to_file(NEW_HEAD, 0);
+                                            else printf("Tutors not found.\n");
+                                            if (valid_file == 1)
+                                                puts("Successful write to file.");
+                                            else
+                                                puts("Error writing to file.");
+                                            Q52 = 0;
+                                            break;
+                                        case 2:
+                                            if (NEW_HEAD->count) valid_file = write_to_file(NEW_HEAD, 1);
+                                            else printf("Tutors not found.\n");
+                                            if (valid_file == 1)
+                                                puts("Successful write to file.");
+                                            else
+                                                puts("Error writing to file.");
+                                            Q52 = 0;
+                                            break;
+                                        case 0:
+                                            break;
+                                        default:
+                                            puts("Error, try again.\n");
+                                    }
+                                } while (Q52 != 0);
+
+                                Q5=0;
+                                break;
+                            case 0:
+                                break;
+                            default:
+                                puts("Try again.");
+                        }
+                    } while(Q5 != 0);
                 else
                     printf("No processed data to output!\n");
                 break;
@@ -298,7 +367,7 @@ int get_database(Head *HEAD, int MODE)
 {
     Node *p;
     int slen,i,count,flag=1,
-        valid_file; // Код ошибки или же успешного чтения из файла: 1-успешно, 0-несуществующий файл, -1-ошибка чтения файла
+        valid_file; // Код ошибки или же успешного чтения из файла: 1-успешно, 0-несуществующий файл, -1-ошибка чтения файла, 2-пустой файл
     char sep;
     char s1[MAXSTR];
     char **s2=NULL;
@@ -306,7 +375,6 @@ int get_database(Head *HEAD, int MODE)
     FILE *df;
     if (MODE)
     {
-        char c;
         char *path;
         puts("Type path to file or his name: ");
         path = get_string();
@@ -333,7 +401,6 @@ int get_database(Head *HEAD, int MODE)
                 count++;
                 i++;
 
-
                 clear_str_array(s2,5);
             }
             else
@@ -344,12 +411,57 @@ int get_database(Head *HEAD, int MODE)
             }
         }
         if (fclose(df)!=EOF)
-            valid_file = 1;
+            if (i==0)
+                valid_file = 2;
+            else
+                valid_file = 1;
     }
     else
         valid_file = 0;
 
     return valid_file;
+}
+
+int write_to_file(Head *HEAD, int MODE)
+{
+	FILE *file; // Указатель на структуру, с помощью которой будет производиться запись в файл
+	int valid_file = 1; // Возвращаемый код функции
+	if (MODE)
+    {
+        char *path;
+        puts("Type path to file or his name: ");
+        path = get_string();
+        file = fopen(path, "w");
+    }
+    else file = fopen("output.txt", "w");
+
+	if (file == NULL)
+	{
+		printf("Error opening file!\n");
+		valid_file = -1;
+	}
+	else
+    {
+        int i;
+        Node *p=NULL;
+
+        p = HEAD->first;
+        for (i = 0; i < HEAD->count; i++)
+        {
+            fprintf(file, "%s;", (p->info).name);
+            fprintf(file, "%s;", (p->info).subject);
+            fprintf(file, "%d;", (p->info).price);
+            fprintf(file, "%c;", (p->info).qual);
+            fprintf(file, "%.2f", (p->info).rating);
+            if (i<HEAD->count-1)
+                fprintf(file, "\n");
+            p = p->next;
+        }
+
+        if (fclose(file) == EOF)
+            valid_file = 0;
+	}
+	return valid_file;
 }
 
 Node *convert_to_node(char **s2)
@@ -763,7 +875,7 @@ void sort(Head *HEAD)
         printf("1 - Name, 2 - Subject, 3 - Price, 4 - Qualification, 5 - Rating\n");
         type = get_int();
     } while (type<1 || type>5);
-    printf("Sort Descending? Press Enter - Yes, any key - Sort Ascending");
+    printf("Sort Descending? Press Enter - Yes, any key - Sort Ascending\n");
     decrease = getch();
 
     p = HEAD->first;
@@ -913,8 +1025,18 @@ int Menu(int q)
                 puts("2 - Remove any items");
                 puts("3 - Sort database");
                 puts("4 - Add item");
+                puts("5 - Save changes to file");
                 puts("0 - Come back");
                 break;
+            case 5:
+                puts("1 - Console output");
+                puts("2 - Output in file");
+                puts("0 - Come back");
+                break;
+            case 52:
+                puts("1 - Write to file by default(output.txt)");
+                puts("2 - Select a file");
+                puts("0 - Come back");
         }
 
 		printf("Select menu item - ");
