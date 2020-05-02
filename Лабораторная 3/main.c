@@ -72,12 +72,10 @@ int main()
                 output = 0;
                 if (HEAD->count) // Если перезаписываем список
                 {
-                    clean_list(HEAD);
+                    HEAD = clean_list(HEAD);
+                    HEAD = make_head();
                     if (NEW_HEAD)
                         NEW_HEAD = clean_list(NEW_HEAD);
-                    HEAD->count = 0;
-                    HEAD->first=NULL;
-                    HEAD->last=NULL;
                 }
                 do
                 {
@@ -195,7 +193,8 @@ int main()
         system("pause");
     } while (Q);
     // Очистка всего мусора
-    HEAD = clean_list(HEAD);
+    if (HEAD->count)
+        HEAD = clean_list(HEAD);
     if (NEW_HEAD)
         NEW_HEAD = clean_list(NEW_HEAD);
     return 0;
@@ -662,19 +661,18 @@ Head *clean_list(Head *HEAD)
 {
     Node *p, *temp;
     int i;
+
     p = HEAD->first;
+    HEAD->count = 0;
     for (i = 0; i < HEAD->count; i++)
     {
-        free((p->info).subject);
-        free((p->info).name);
         temp = p;
         p = p->next;
-        free(temp->next);
-        free(temp->prev);
-
+        temp->next = NULL;
+        temp->prev = NULL;
+        temp = clean_node(temp);
     }
-    free(HEAD->first);
-    free(HEAD->last);
+    free(HEAD);
     return NULL;
 }
 
