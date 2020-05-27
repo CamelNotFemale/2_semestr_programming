@@ -1,1 +1,2 @@
-Stone Sharonne;Russian;1000;A;4.98/nHowston Wizery;English;750;A;4.30/nMcCartney Pol;Maths;700;A;4.12/nMae Vanessa;Computer science;570;B;3.20/nLast James;Maths;500;B;3.10/nChang Jeckie;English;350;C;4.20/nDmitrii Dementev;Computer science;40;B;4.20/n
+Howston Witney;English;750;A;4.32
+Chang Jeckie;English;350;C;4.20

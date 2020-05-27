@@ -99,12 +99,6 @@ int main()
                         default:
                             puts("Error, try again.\n");
                     }
-                    /*printf("Our Node {%p} and his price %d\n", p, (p->info).price);
-                    p = HEAD->first;
-                    for (int i=0; i<HEAD->count; i++) {
-                        printf("[%d] prev: {%p} next {%p}\n", i+1, p->prev, p->next);
-                        p = p->next;
-                    }*/
                 } while (c != 13);
                 break;
             case 2:     //output
@@ -265,7 +259,10 @@ char *get_subject() // Функция выбора Учебного предмета из заданных заранее
             printf("This item doesn't exist. Try again.\n");
     } while (q <= 0 || q > (int)sizeof(subjects)/sizeof(char*));
     while ((c = getchar()) != '\n' && c != EOF);
-    printf("Your chosen %s\n", choice = subjects[q-1]);
+    choice = (char*)malloc(MAXLEN*sizeof(char));
+    strcpy(choice, subjects[q-1]);
+    printf("Your chosen %s\n", choice);
+
     return choice;
 }
 
@@ -593,7 +590,7 @@ Node *copy_node(Node *NODE)
     if((p->info).subject!=NULL && (p->info).name!=NULL)
     {
         strcpy((p->info).name, (NODE->info).name);
-        strcpy((p->info).subject, (NODE->info).name);
+        strcpy((p->info).subject, (NODE->info).subject);
         (p->info).price = (NODE->info).price;
         (p->info).qual = (NODE->info).qual;
         (p->info).rating = (NODE->info).rating;
