@@ -373,6 +373,7 @@ char **simple_split(char *str, int length, char sep)
                     m++;
                 }
             }
+            str_array[m][j-k]='\0';
         }
         else
         {
@@ -590,7 +591,6 @@ void fill_node(tutor *list) // Добавить элемент в список
 {
     system(CLEAR);
     list->name = (char*)malloc(MAXLEN*sizeof(char));
-    list->subject = (char*)malloc(MAXLEN*sizeof(char));
     if (list->subject && list->name)
     {
         printf("Enter tutor's name: \n");
@@ -984,7 +984,7 @@ Head *selected(Head *my_head)
         }
         p = p->next;
     }
-
+    free(subject);
     return NEW_HEAD;
 }
 // Очистка для конкретной записи

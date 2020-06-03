@@ -254,7 +254,7 @@ char *get_subject() // Функция выбора Учебного предмета из заданных заранее
         printf("%d. %s\n", i+1, subjects[i]);
     do
     {
-        scanf("%d", &q);
+        q = get_int();
         if (q <= 0 || q > (int)sizeof(subjects)/sizeof(char*))
             printf("This item doesn't exist. Try again.\n");
     } while (q <= 0 || q > (int)sizeof(subjects)/sizeof(char*));
@@ -660,7 +660,6 @@ Head *clean_list(Head *HEAD)
     int i;
 
     p = HEAD->first;
-    HEAD->count = 0;
     for (i = 0; i < HEAD->count; i++)
     {
         temp = p;
@@ -669,6 +668,7 @@ Head *clean_list(Head *HEAD)
         temp->prev = NULL;
         temp = clean_node(temp);
     }
+    HEAD->count = 0;
     free(HEAD);
     return NULL;
 }

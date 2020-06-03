@@ -255,7 +255,7 @@ char *get_subject() // Функция выбора Учебного предмета из заданных заранее
         printf("%d. %s\n", i+1, subjects[i]);
     do
     {
-        scanf("%d", &q);
+        q = get_int();
         if (q <= 0 || q > (int)sizeof(subjects)/sizeof(char*))
             printf("This item doesn't exist. Try again.\n");
     } while (q <= 0 || q > (int)sizeof(subjects)/sizeof(char*));
